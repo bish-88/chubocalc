@@ -12,6 +12,20 @@
 #target{width:4.5em;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:2px solid var(--mustard);border-radius:6px;padding:5px 8px;text-align:right}
 *,*::before,*::after{box-sizing:border-box}
 .tile .val.tot{font-size:1rem;display:flex;flex-direction:column;line-height:1.5}
+.plan h2{margin-bottom:10px}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.pcard{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.pname{font-weight:900;font-size:1rem}
+.wds{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{padding:8px 0;font-weight:700;font-size:.95rem;text-align:center;border-radius:6px;background:var(--panel)}
+.wd.on{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.wd.sat:not(.on){color:#3a6fd8}.wd.sun:not(.on){color:var(--bad)}
+.pneed{background:var(--mustard-soft);border:1px solid var(--mustard);border-radius:8px;padding:10px 12px}
+.pneed .lab{font-size:.78rem;color:var(--muted)}
+.pneed .big{font-family:var(--f-num);font-weight:700;font-size:1.8rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.prow{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:.92rem}
+.prow span:first-child{color:var(--muted);font-family:var(--f-display)}
+.pempty{color:var(--muted);font-size:.9rem}
 /* Layout: one column tool — period bar → summary → daily table */
 :root{
   --bg:#f3f5f1; --panel:#ffffff; --ink:#1d2a22; --muted:#5d6b62; --line:#d9e0d8;
@@ -184,6 +198,11 @@ button:disabled{opacity:.6;cursor:wait}
     <div class="tile"><div class="lab">期間合計（円）</div><div class="val tot" id="sTot">–</div></div>
   </section>
 
+  <section class="panel plan" aria-label="作成計画">
+    <h2>作成計画（曜日べつ）</h2>
+    <div class="plan-grid" id="plans"></div>
+  </section>
+
   <div class="tablebox">
     <table>
       <thead><tr>
@@ -264,6 +283,7 @@ function render(){
   const w=$("warn");
   if(missing.length){ w.hidden=false; w.textContent=`${missing.map(s=>{const d=parse(s);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()}).join("・")} の数字がまだありません。写真アップか、黄色の欄に入力してください。`; }
   else w.hidden=true;
+  renderPlans(list);
 }
 
 // 写真アップ・読み取り
@@ -315,6 +335,40 @@ $("readBtn").onclick=async()=>{
   }finally{ btn.disabled=false }
 };
 
+
+// 作成計画（曜日パターン）
+let PLANS=[{name:"パターンA",days:[1,2,3,4,5]},{name:"パターンB",days:[0,6]}];
+try{ const p=JSON.parse(localStorage.getItem("kitchen-plans")); if(Array.isArray(p)&&p.length===2) PLANS=p }catch(e){}
+const savePlans=()=>{ try{ localStorage.setItem("kitchen-plans",JSON.stringify(PLANS)) }catch(e){} };
+function renderPlans(list){
+  const box=$("plans"); box.innerHTML="";
+  PLANS.forEach((pl,pi)=>{
+    const rows=list.filter(ds=>full(data[ds]) && pl.days.includes(parse(ds).getUTCDay())).map(ds=>data[ds]);
+    const k=rows.length;
+    const sum=i=>rows.reduce((t,v)=>t+v[i],0);
+    const S=sum(0), L=rows.reduce((t,v)=>t+lossOf(v),0);
+    const need=k?S/T/k:0, now=k?(S+L)/k:0, diff=need-now;
+    const names=[1,2,3,4,5,6,0].filter(d=>pl.days.includes(d)).map(d=>W[d]).join("・")||"曜日を選んでください";
+    const c=document.createElement("div"); c.className="pcard";
+    c.innerHTML=`<div class="pname">${pl.name}（${names}）</div>
+      <div class="wds">${[1,2,3,4,5,6,0].map(d=>`<button type="button" id="wd-${pi}-${d}" class="wd ${d===6?'sat':d===0?'sun':''} ${pl.days.includes(d)?'on':''}" data-p="${pi}" data-d="${d}" aria-pressed="${pl.days.includes(d)}">${W[d]}</button>`).join("")}</div>
+      ${k?`<div class="pneed"><div class="lab">1日の必要な作成高（平均・目標${tgt()}%）</div><div class="big">${yen(need)}円</div></div>
+      <div class="prow"><span>今の作成高（平均）</span><span>${yen(now)}円</span></div>
+      <div class="prow"><span>販売高（平均）</span><span>${yen(S/k)}円</span></div>
+      <div class="prow"><span>今より</span><span>${pill(diff)}</span></div>
+      <div class="prow"><span>計算した日</span><span>${k}日</span></div>`
+      :`<div class="pempty">この期間に、選んだ曜日の数字がありません。</div>`}`;
+    box.appendChild(c);
+  });
+}
+$("plans").addEventListener("click",e=>{
+  const b=e.target.closest(".wd"); if(!b) return;
+  const pi=+b.dataset.p, d=+b.dataset.d, other=1-pi;
+  const on=PLANS[pi].days.includes(d);
+  PLANS[pi].days = on ? PLANS[pi].days.filter(x=>x!==d) : [...PLANS[pi].days,d];
+  if(!on) PLANS[other].days=PLANS[other].days.filter(x=>x!==d);
+  savePlans(); render();
+});
 $("rows").addEventListener("change",e=>{
   const t=e.target; if(!t.dataset.d) return;
   const raw=t.value.replace(/[,，円\s]/g,"").replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248));
