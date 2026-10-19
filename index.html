@@ -129,7 +129,11 @@ details.settings[open] summary svg{transform:rotate(180deg)}
 .bcol.bnone i{background:transparent;border:1px dashed var(--line);height:6px!important}
 .bcol em{font-style:normal;font-size:.64rem;color:var(--muted);position:absolute;white-space:nowrap}
 .xlabs{display:grid;gap:4px;margin-left:34px;margin-top:6px}
-.xlabs span{min-width:0;text-align:center;font-size:.66rem;color:var(--muted);white-space:nowrap;overflow:hidden}
+.xlabs b{font-weight:600}.xlabs .sat{color:#8FB4FF}.xlabs .sun{color:var(--bad)}
+.xlabs span{line-height:1.35;min-width:0;text-align:center;font-size:.66rem;color:var(--muted);white-space:nowrap;overflow:hidden}
+.savebtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 12px;font-size:.82rem}
+.savebtn svg{width:16px;height:16px}
+#saveMsg{margin:0 0 10px}
 .legend{display:flex;gap:14px;font-size:.72rem;color:var(--muted);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 
@@ -305,7 +309,8 @@ details.settings[open] summary svg{transform:rotate(180deg)}
         </section>
 
         <section class="card" aria-label="日別販売率">
-          <div class="sec-head"><h3 class="sec-title">日別販売率</h3></div>
+          <div class="sec-head"><h3 class="sec-title">日別販売率</h3><button type="button" class="btn ghost savebtn" id="saveImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>画像で保存</button></div>
+          <p class="status" id="saveMsg" hidden></p>
           <div id="chart"></div>
         </section>
       </div>
@@ -477,10 +482,10 @@ function renderChart(list){
   pts.forEach(p=>{
     if(p.r===null){ h+=`<div class="bcol bnone" title="${md(p.ds)} 未入力"><i></i></div>`; return }
     const hp=Math.max(0,Math.min(100,p.r*100));
-    h+=`<div class="bcol ${p.r<T?'low':''}" title="${md(p.ds)} ${pct(p.r)}"><i style="height:${hp}%"></i>${pts.length<=10?`<em class="num" style="bottom:calc(${hp}% + 2px)">${(p.r*100).toFixed(0)}</em>`:''}</div>`;
+    h+=`<div class="bcol ${p.r<T?'low':''}" title="${md(p.ds)} ${pct(p.r)}"><i style="height:${hp}%"></i>${pts.length<=10?`<em class="num" style="bottom:calc(${hp}% + 2px)">${(p.r*100).toFixed(0)}%</em>`:''}</div>`;
   });
   h+=`</div></div><div class="xlabs" style="grid-template-columns:repeat(${pts.length},minmax(0,1fr))">`;
-  pts.forEach((p,i)=>{ const d=parse(p.ds); h+=`<span class="num">${i%every===0?`${d.getUTCMonth()+1}/${d.getUTCDate()}`:''}</span>` });
+  pts.forEach((p,i)=>{ const d=parse(p.ds), wd=d.getUTCDay(); h+=`<span class="num">${i%every===0?`${d.getUTCMonth()+1}/${d.getUTCDate()}<br><b class="${wd===6?'sat':wd===0?'sun':''}">${W[wd]}</b>`:''}</span>` });
   h+=`</div><div class="legend"><span><i style="background:var(--ok)"></i>目標以上</span><span><i style="background:var(--bad)"></i>目標未満</span><span><i style="background:transparent;border:1px dashed var(--line)"></i>未入力</span></div>`;
   el.innerHTML=h;
 }
@@ -655,6 +660,62 @@ $("plans").addEventListener("click",e=>{
   savePlans(); render();
 });
 
+
+// グラフを画像で保存
+function chartBlob(){
+  const list=days($("from").value,$("to").value).slice(0,62);
+  const pts=list.map(ds=>({ds,r:full(data[ds])?rateOf(data[ds]):null}));
+  let S=0,L=0,n=0; list.forEach(ds=>{ if(full(data[ds])){ S+=data[ds][0]; L+=lossOf(data[ds]); n++ } });
+  const pr=n&&S+L>0?S/(S+L):null;
+  const Wd=1080,H=760,c=document.createElement("canvas"); c.width=Wd; c.height=H;
+  const g=c.getContext("2d"), F='-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif';
+  const C={bg:"#0B1110",card:"#17211D",line:"#304039",fg:"#F5F7F5",mu:"#9CAA9F",ok:"#68D9A4",bad:"#EF7777",sat:"#8FB4FF"};
+  g.fillStyle=C.bg; g.fillRect(0,0,Wd,H);
+  const rr=(x,y,w,h,r)=>{ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath() };
+  g.fillStyle=C.card; rr(24,24,Wd-48,H-48,28); g.fill(); g.strokeStyle=C.line; g.lineWidth=2; g.stroke();
+  g.fillStyle=C.fg; g.font=`700 40px ${F}`; g.textBaseline="alphabetic"; g.fillText("日別販売率",64,96);
+  g.fillStyle=C.mu; g.font=`500 24px ${F}`;
+  g.fillText(`期間 ${md($("from").value)}〜${md($("to").value)}　目標 ${tgt()}%`,64,136);
+  if(pr!==null){ g.textAlign="right"; g.font=`800 52px ${F}`; g.fillStyle=pr<T?C.bad:C.ok; g.fillText(pct(pr),Wd-64,100);
+    g.font=`500 22px ${F}`; g.fillStyle=C.mu; g.fillText("期間の販売率  目標との差 "+pt(pr),Wd-64,136); g.textAlign="left" }
+  const x0=120,x1=Wd-64,y0=190,y1=600,ch=y1-y0,yv=v=>y1-ch*v/100;
+  g.font=`500 20px ${F}`; g.textAlign="right"; g.textBaseline="middle";
+  [0,25,50,75,100].forEach(v=>{ g.strokeStyle=C.line; g.setLineDash([6,8]); g.lineWidth=1.5; g.beginPath(); g.moveTo(x0,yv(v)); g.lineTo(x1,yv(v)); g.stroke(); g.setLineDash([]); g.fillStyle=C.mu; g.fillText(v,x0-14,yv(v)) });
+  const N=pts.length, gap=8, bw=(x1-x0-gap*(N-1))/N, maxb=Math.min(bw,70);
+  pts.forEach((p,i)=>{
+    const cx=x0+i*(bw+gap)+bw/2, d=parse(p.ds), wd=d.getUTCDay();
+    if(p.r!==null){ const v=Math.max(0,Math.min(100,p.r*100)); g.fillStyle=p.r<T?C.bad:C.ok; rr(cx-maxb/2,yv(v),maxb,y1-yv(v),Math.min(8,maxb/3)); g.fill();
+      if(N<=16){ g.fillStyle=C.fg; g.textAlign="center"; g.textBaseline="alphabetic"; g.font=`700 ${N<=10?22:16}px ${F}`; g.fillText((p.r*100).toFixed(0)+"%",cx,yv(v)-10) } }
+    else { g.strokeStyle=C.line; g.setLineDash([5,5]); rr(cx-maxb/2,y1-8,maxb,8,3); g.stroke(); g.setLineDash([]) }
+    const every=Math.ceil(N/10);
+    if(i%every===0){ g.textAlign="center"; g.textBaseline="top"; g.font=`500 ${N<=10?20:16}px ${F}`; g.fillStyle=C.mu; g.fillText(`${d.getUTCMonth()+1}/${d.getUTCDate()}`,cx,y1+14);
+      g.font=`700 ${N<=10?20:16}px ${F}`; g.fillStyle=wd===6?C.sat:wd===0?C.bad:C.fg; g.fillText(W[wd],cx,y1+42) }
+  });
+  g.strokeStyle=C.fg; g.globalAlpha=.85; g.lineWidth=3; g.beginPath(); g.moveTo(x0,yv(T*100)); g.lineTo(x1,yv(T*100)); g.stroke(); g.globalAlpha=1;
+  g.textAlign="right"; g.textBaseline="bottom"; g.font=`600 20px ${F}`; g.fillStyle=C.fg; g.fillText(`目標 ${tgt()}%`,x1,yv(T*100)-6);
+  g.textAlign="left"; g.textBaseline="middle"; g.font=`500 20px ${F}`;
+  [["目標以上",C.ok],["目標未満",C.bad]].forEach(([t,col],k)=>{ const x=64+k*170; g.fillStyle=col; rr(x,H-76,18,18,4); g.fill(); g.fillStyle=C.mu; g.fillText(t,x+28,H-67) });
+  g.textAlign="right"; g.fillStyle=C.mu; g.fillText("厨房販売率CALC",Wd-64,H-67);
+  return new Promise(res=>c.toBlob(res,"image/png"));
+}
+function saveMsg(t,k){ const m=$("saveMsg"); m.hidden=!t; m.className="status "+(k||""); m.textContent=t||"" }
+$("saveImg").onclick=async()=>{
+  const btn=$("saveImg"); btn.disabled=true; saveMsg("");
+  try{
+    const blob=await chartBlob();
+    const name=`販売率_${$("from").value}_${$("to").value}.png`;
+    let dl=null; try{ dl=window.claude && await claude.use("downloads") }catch(e){}
+    if(dl){ try{ await dl.save({filename:name,data:blob}); saveMsg("画像を保存しました。","ok") }catch(e){ saveMsg(e&&e.code==="declined"?"":"保存できませんでした。","err") } return }
+    const file=new File([blob],name,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:"日別販売率"}); saveMsg("「画像を保存」を選ぶと写真に入ります。","ok") }catch(e){ if(e&&e.name!=="AbortError") saveMsg("保存できませんでした。","err") }
+      return;
+    }
+    const url=URL.createObjectURL(blob), a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000); saveMsg("画像をダウンロードしました。","ok");
+  }catch(e){ saveMsg("保存できませんでした。","err") }
+  finally{ btn.disabled=false }
+};
 // タブ
 const TABS=["sum","plan","day","photo"];
 function showTab(t){
