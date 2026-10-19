@@ -125,16 +125,11 @@ button:disabled{opacity:.6;cursor:wait}
 <div class="wrap">
   <header>
     <h1>厨房販売率CALC</h1>
-    <p class="sub">WinShareの「販売高／値引高／廃棄高」から販売率と目標までの差額を出します</p>
   </header>
 
   <section class="panel up-panel" aria-label="写真アップ">
     <div class="up-head">
-      <div>
-        <h2>① WinShareの写真をアップ</h2>
-        <p class="sub">「まちかど厨房（販売）」が写っている画面の写真を選んでください。数字を読み取って下の表に入れます。</p>
-      </div>
-      <label class="upbtn" for="photo">写真を選ぶ</label>
+      <label class="upbtn" for="photo">写真アップ</label>
       <input type="file" id="photo" accept="image/*" hidden>
     </div>
     <div id="upBody" class="up-body" hidden>
@@ -262,7 +257,7 @@ let photoFile=null, sampleFn=null;
 $("photo").addEventListener("change",e=>{
   const f=e.target.files&&e.target.files[0]; if(!f) return;
   photoFile=f; $("preview").src=URL.createObjectURL(f); $("upBody").hidden=false;
-  $("readMsg").textContent = sampleFn ? "「数字を読み取る」を押してください。" : "写真を見ながら、下の表に数字を入力してください。";
+  $("readMsg").textContent = sampleFn ? "「数字を読み取る」を押してください。" : "";
 });
 (async()=>{
   try{
