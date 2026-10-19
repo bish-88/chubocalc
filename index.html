@@ -98,7 +98,32 @@ details.settings[open] summary svg{transform:rotate(180deg)}
 /* KPI */
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0}
-.kpi .v{font-size:clamp(1.15rem,5.6vw,1.5rem);font-weight:700;margin-top:4px;line-height:1.2;overflow-wrap:anywhere}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-size:clamp(1rem,5.2vw,1.5rem);font-weight:700;margin-top:4px;line-height:1.2;white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px;background:var(--fg)}
+.k-s .dot{background:var(--ok)} .k-d .dot{background:var(--warn)} .k-w .dot{background:var(--bad)} .k-m .dot{background:var(--fg)}
+.k-s .s{color:var(--ok)} .k-d .s{color:var(--warn)} .k-w .s{color:var(--bad)} .k-m .s{color:var(--fg)}
+.stack{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--card2);gap:2px}
+.stack i{display:block;height:100%;transition:width .25s ease;min-width:0}
+.mix{display:flex;flex-direction:column;margin-top:10px}
+.mrow{display:grid;grid-template-columns:1fr auto 4.2em;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.mrow:last-child{border-bottom:0}
+.mrow span:first-child{color:var(--muted)} .mrow b{text-align:right;font-weight:700}
+.sim-say{margin:10px 0 0;font-size:.85rem;line-height:1.6}
+.cinfo{margin-top:12px;background:var(--card2);border-radius:var(--r-sm);padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-height:44px;justify-content:center}
+.ci-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ci-top small{font-size:.75rem;margin-left:4px}
+.ci-grid,.dmini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ci-grid span,.dmini span{display:flex;flex-direction:column;min-width:0}
+.ci-grid em,.dmini em{font-style:normal;font-size:.68rem;color:var(--muted)}
+.ci-grid b,.dmini b{font-weight:600;font-size:.86rem;white-space:nowrap}
+.dmini{margin-top:8px}
+.dmini small{font-size:.7rem;font-weight:600}
+.bcol{cursor:pointer}
+.bcol.sel i{outline:2px solid var(--fg);outline-offset:2px}
+.rv.need{box-shadow:inset 0 0 0 1px rgba(241,199,91,.6)}
+.rv-warn{margin:0;font-size:.78rem;color:var(--warn)}
+.inputs input.miss{border-color:var(--warn);border-style:solid}
 .kpi .v small{font-size:.7em;font-weight:600;color:var(--muted);margin-left:2px}
 .kpi .s{font-size:.78rem;margin-top:4px}
 .c-ok{color:var(--ok)} .c-warn{color:var(--warn)} .c-bad{color:var(--bad)} .c-acc{color:var(--accent)}
@@ -141,6 +166,7 @@ details.settings[open] summary svg{transform:rotate(180deg)}
 .psum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .psum .card2{display:flex;flex-direction:column;gap:4px}
 .psum .num{font-size:1.15rem;font-weight:700}
+.psum .small,.psum .small .num{font-size:.78rem;font-weight:400}
 
 /* Day cards */
 .ctx{font-size:.8rem;color:var(--muted);margin:0}
@@ -148,7 +174,7 @@ details.settings[open] summary svg{transform:rotate(180deg)}
 .dcard{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .dcard>button{width:100%;text-align:left;background:transparent;border:0;padding:12px 14px;min-height:44px;display:block}
 .dtop{display:flex;align-items:center;gap:10px}
-.ddate{font-weight:700;font-size:.98rem;flex:1;min-width:0}
+.ddate{font-weight:700;font-size:.98rem;flex:1;min-width:0;white-space:nowrap}
 .ddate .sat{color:#8FB4FF} .ddate .sun{color:var(--bad)}
 .drate{font-weight:800;font-size:1.25rem}
 .chev{width:18px;height:18px;color:var(--muted);transition:transform .2s;flex:none}
@@ -156,7 +182,7 @@ details.settings[open] summary svg{transform:rotate(180deg)}
 .dsub{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;color:var(--muted);margin-top:2px}
 .dcard .bar{height:6px;margin-top:8px}
 .dcard .bar b{top:-3px;bottom:-3px}
-.ddet{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px;animation:fade .2s ease}
+.ddet{padding:0 14px 14px;border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px;animation:fade .2s ease}
 .inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .inputs label{display:flex;flex-direction:column;gap:4px;font-size:.72rem;color:var(--muted);font-weight:600;min-width:0}
 .inputs input{width:100%;min-height:44px;font-size:16px;text-align:right;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px;color:var(--fg);font-variant-numeric:tabular-nums}
@@ -280,7 +306,7 @@ details.settings[open] summary svg{transform:rotate(180deg)}
       <div class="col">
         <section class="card hero" aria-label="期間販売率">
           <div class="eyebrow">期間販売率</div>
-          <div class="val num" id="sRate">–</div>
+          <div class="val num" id="sRate">—</div>
           <div class="meta">
             <span>目標 <b class="num" id="sTgt">–</b></span>
             <span>目標との差 <b class="num delta" id="sDelta">–</b></span>
@@ -290,10 +316,17 @@ details.settings[open] summary svg{transform:rotate(180deg)}
         </section>
 
         <section class="kpis" aria-label="金額">
-          <div class="kpi"><div class="eyebrow">販売高</div><div class="v num" id="kS">–</div><div class="s c-acc num" id="kSr"></div></div>
-          <div class="kpi"><div class="eyebrow">値引高</div><div class="v num" id="kD">–</div><div class="s c-warn num" id="kDr"></div></div>
-          <div class="kpi"><div class="eyebrow">廃棄高</div><div class="v num" id="kW">–</div><div class="s c-bad num" id="kWr"></div></div>
-          <div class="kpi"><div class="eyebrow">作成高</div><div class="v num" id="kM">–</div><div class="s muted small">販売＋値引＋廃棄</div></div>
+          <div class="kpi k-s"><div class="eyebrow"><i class="dot"></i>販売高</div><div class="v num" id="kS">—</div><div class="s num" id="kSr"></div></div>
+          <div class="kpi k-d"><div class="eyebrow"><i class="dot"></i>値引高</div><div class="v num" id="kD">—</div><div class="s num" id="kDr"></div></div>
+          <div class="kpi k-w"><div class="eyebrow"><i class="dot"></i>廃棄高</div><div class="v num" id="kW">—</div><div class="s num" id="kWr"></div></div>
+          <div class="kpi k-m"><div class="eyebrow"><i class="dot"></i>作成高</div><div class="v num" id="kM">—</div><div class="s num" id="kMr"></div></div>
+        </section>
+
+        <section class="card" aria-label="作成高の内訳">
+          <div class="sec-head"><h3 class="sec-title">厨房作成高の内訳</h3><span class="eyebrow" id="mixTotal"></span></div>
+          <div class="stack" id="mixBar" role="img" aria-label="作成高の内訳"></div>
+          <div class="mix" id="mixRows"></div>
+          <p class="foot-note" id="mixNote" hidden>この内訳は作成高（販売＋値引＋廃棄）に対する割合です。上の販売率（廃棄だけで計算）とは別の指標です。</p>
         </section>
       </div>
 
@@ -301,11 +334,14 @@ details.settings[open] summary svg{transform:rotate(180deg)}
         <section class="card" aria-label="目標達成シミュレーション">
           <div class="sec-head"><h3 class="sec-title">目標達成シミュレーション</h3><span class="eyebrow num" id="simT"></span></div>
           <div class="sim-rows">
-            <div class="sim-row"><span>目標達成に必要な作成高</span><span class="num" id="simNeed">–</span></div>
-            <div class="sim-row"><span id="simNowLab">現在の作成高</span><span class="num" id="simNow">–</span></div>
+            <div class="sim-row"><span>目標販売率</span><span class="num" id="simTR">—</span></div>
+            <div class="sim-row"><span>現在販売率</span><span class="num" id="simCR">—</span></div>
+            <div class="sim-row"><span id="simNowLab">現在作成高</span><span class="num" id="simNow">—</span></div>
+            <div class="sim-row"><span>目標作成高</span><span class="num" id="simNeed">—</span></div>
           </div>
-          <div class="sim-main" id="simBox"><span class="lab" id="simLab">追加作成可能額</span><span class="num" id="sAdj">–</span></div>
-          <p class="foot-note">販売高が今と同じ場合の、計算上の金額です。</p>
+          <div class="sim-main" id="simBox"><span class="lab" id="simLab">作成高の余裕</span><span class="num" id="sAdj">—</span></div>
+          <p class="sim-say" id="simSay"></p>
+          <p class="foot-note">販売高が今と同じ場合の計算上の余裕です。販売計画の推奨値ではありません。</p>
         </section>
 
         <section class="card" aria-label="日別販売率">
@@ -402,13 +438,15 @@ function tgt(){ return +(T*100).toFixed(1) }
 function pill(a){
   if(a===null) return '<span class="pill none">—</span>';
   if(Math.abs(a)<1) return `<span class="pill up">ちょうど${tgt()}%</span>`;
-  return a<0 ? `<span class="pill down">−${yen(-a)}円 へらす</span>` : `<span class="pill up">＋${yen(a)}円 ふやせる</span>`;
+  return a<0 ? `<span class="pill down">-${yen(-a)}円 へらす</span>` : `<span class="pill up">＋${yen(a)}円 ふやせる</span>`;
 }
 
 // 表示用ヘルパー（計算式は上の関数のまま）
-const pct=x=>(x*100).toFixed(1)+"%";
-const pt=r=>{ const d=(r-T)*100; return (d>=0?"+":"−")+Math.abs(d).toFixed(1)+"pt" };
-const signYen=a=>(a<0?"−":"+")+yen(Math.abs(a))+"円";
+const ok=x=>x!==null&&x!==undefined&&isFinite(x);
+const pct=x=>ok(x)?(x*100).toFixed(1)+"%":"—";
+const pt=r=>{ if(!ok(r)) return "—"; const d=(r-T)*100; return (d>=0?"+":"-")+Math.abs(d).toFixed(1)+"pt" };
+const signYen=a=>ok(a)?(a<0?"-":"+")+yen(Math.abs(a))+"円":"—";
+const share=(x,all)=>all>0?pct(x/all):"—";
 const md=s=>{const d=parse(s);return `${d.getUTCMonth()+1}/${d.getUTCDate()}`};
 const CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
 function makeAll(v){ return v[0]+v[1]+v[2] } // 作成高＝販売＋値引＋廃棄（値引率・廃棄率の分母）
@@ -426,38 +464,49 @@ function render(opt){
   $("hTarget").textContent=tgt()+"%";
 
   // メインKPI
-  $("sRate").textContent=r===null?"–":pct(r);
+  $("sRate").textContent=r===null?"—":pct(r);
   $("sRate").className="val num "+(r===null?"":r<T?"c-bad":"c-ok");
   $("sTgt").textContent=tgt().toFixed(1)+"%";
-  $("sDelta").textContent=r===null?"–":pt(r);
+  $("sDelta").textContent=r===null?"—":pt(r);
   $("sDelta").className="num delta "+(r===null?"":r<T?"down":"up");
   const bar=$("sBar"); bar.classList.toggle("low",r!==null&&r<T);
   bar.querySelector("i").style.width=(r===null?0:Math.min(100,r*100))+"%";
   bar.querySelector("b").style.left=(T*100)+"%";
 
   // 金額KPI
-  $("kS").innerHTML=n?yen(S)+"<small>円</small>":"–";
-  $("kD").innerHTML=n?yen(D)+"<small>円</small>":"–";
-  $("kW").innerHTML=n?yen(Wt)+"<small>円</small>":"–";
-  $("kM").innerHTML=n?yen(all)+"<small>円</small>":"–";
-  $("kSr").textContent=n&&all?"販売率 "+pct(S/all):"";
-  $("kDr").textContent=n&&all?"値引率 "+pct(D/all):"";
-  $("kWr").textContent=n&&all?"廃棄率 "+pct(Wt/all):"";
+  $("kS").innerHTML=n?yen(S)+"<small>円</small>":"—";
+  $("kD").innerHTML=n?yen(D)+"<small>円</small>":"—";
+  $("kW").innerHTML=n?yen(Wt)+"<small>円</small>":"—";
+  $("kM").innerHTML=n?yen(all)+"<small>円</small>":"—";
+  $("kSr").textContent="販売率 "+(n?share(S,all):"—");
+  $("kDr").textContent="値引率 "+(n?share(D,all):"—");
+  $("kWr").textContent="廃棄率 "+(n?share(Wt,all):"—");
+  $("kMr").textContent=n&&all>0?"100%":"—";
+
+  // 作成高の内訳（100%積み上げ）
+  const segs=[["販売",S,"var(--ok)"],["値引",D,"var(--warn)"],["廃棄",Wt,"var(--bad)"]];
+  $("mixTotal").textContent=n&&all>0?"作成高 "+yen(all)+"円":"";
+  $("mixBar").innerHTML=n&&all>0?segs.map(([nm,v,c])=>`<i style="width:${v/all*100}%;background:${c}" title="${nm} ${pct(v/all)}"></i>`).join(""):'<span class="muted small">データがありません</span>';
+  $("mixRows").innerHTML=segs.map(([nm,v,c])=>`<div class="mrow"><span><i class="dot" style="background:${c}"></i>${nm}</span><span class="num">${n?yen(v)+"円":"—"}</span><b class="num">${n?share(v,all):"—"}</b></div>`).join("");
+  $("mixNote").hidden=$("mode").value==="dw";
 
   // シミュレーション
   $("simT").textContent="目標 "+tgt()+"%";
-  $("simNeed").textContent=n?yen(S/T)+"円":"–";
-  $("simNow").textContent=n?yen(S+lossOf(tot))+"円":"–";
-  $("simNowLab").textContent=$("mode").value==="dw"?"現在の作成高":"現在の作成高（値引をふくまない）";
+  $("simTR").textContent=tgt().toFixed(1)+"%";
+  $("simCR").textContent=r===null?"—":pct(r); $("simCR").className="num "+(r===null?"":r<T?"c-bad":"c-ok");
+  $("simNeed").textContent=n?yen(S/T)+"円":"—";
+  $("simNow").textContent=n?yen(S+lossOf(tot))+"円":"—";
+  $("simNowLab").textContent=$("mode").value==="dw"?"現在作成高":"現在作成高（値引をふくまない）";
   const box=$("simBox"); box.className="sim-main "+(a===null?"":a<0?"down":"up");
-  $("simLab").textContent=a!==null&&a<0?"減らす必要がある額":"追加作成可能額";
-  $("sAdj").textContent=a===null?"–":signYen(a);
+  $("simLab").textContent="作成高の余裕";
+  $("sAdj").textContent=a===null?"—":signYen(a);
+  $("simSay").textContent=a===null?"":a>=0?`販売高が変わらなければ、作成高があと${yen(a)}円増えても目標${tgt()}%を維持できます。`:`目標${tgt()}%にするには、作成高を${yen(-a)}円減らす必要があります。`;
 
   // 期間サマリー
   $("sDays").textContent=`${n}日 / ${list.length}日`;
-  $("sAvgS").textContent=n?yen(S/n)+"円":"–";
-  $("sNeed").textContent=n?yen(S/T/n)+"円":"–"; $("sNow").textContent=n?yen((S+lossOf(tot))/n):"–";
-  $("sPerDay").textContent=a===null?"–":signYen(a/n);
+  $("sAvgS").textContent=n?yen(S/n)+"円":"—";
+  $("sNeed").textContent=n?yen(S/T/n)+"円":"—"; $("sNow").textContent=n?yen((S+lossOf(tot))/n):"—";
+  $("sPerDay").textContent=a===null?"—":signYen(a/n);
   $("sPerDay").className="num "+(a===null?"":a<0?"c-bad":"c-ok");
 
   const w=$("warn");
@@ -480,15 +529,30 @@ function renderChart(list){
   [0,25,50,75,100].forEach(v=>{ h+=`<div class="grid" style="top:${100-v}%"></div><span class="ylab num" style="top:${100-v}%">${v}</span>` });
   h+=`<div class="tline" style="top:${100-T*100}%"></div><span class="tlab num" style="top:${100-T*100}%">目標 ${tgt()}%</span><div class="bars" style="grid-template-columns:repeat(${pts.length},minmax(0,1fr))">`;
   pts.forEach(p=>{
-    if(p.r===null){ h+=`<div class="bcol bnone" title="${md(p.ds)} 未入力"><i></i></div>`; return }
+    if(p.r===null){ h+=`<div class="bcol bnone ${SEL===p.ds?'sel':''}" data-ds="${p.ds}" title="${md(p.ds)} 未入力"><i></i></div>`; return }
     const hp=Math.max(0,Math.min(100,p.r*100));
-    h+=`<div class="bcol ${p.r<T?'low':''}" title="${md(p.ds)} ${pct(p.r)}"><i style="height:${hp}%"></i>${pts.length<=10?`<em class="num" style="bottom:calc(${hp}% + 2px)">${(p.r*100).toFixed(0)}%</em>`:''}</div>`;
+    h+=`<div class="bcol ${p.r<T?'low':''} ${SEL===p.ds?'sel':''}" data-ds="${p.ds}" title="${md(p.ds)} ${pct(p.r)}"><i style="height:${hp}%"></i>${pts.length<=10?`<em class="num" style="bottom:calc(${hp}% + 2px)">${(p.r*100).toFixed(0)}%</em>`:''}</div>`;
   });
   h+=`</div></div><div class="xlabs" style="grid-template-columns:repeat(${pts.length},minmax(0,1fr))">`;
   pts.forEach((p,i)=>{ const d=parse(p.ds), wd=d.getUTCDay(); h+=`<span class="num">${i%every===0?`${d.getUTCMonth()+1}/${d.getUTCDate()}<br><b class="${wd===6?'sat':wd===0?'sun':''}">${W[wd]}</b>`:''}</span>` });
   h+=`</div><div class="legend"><span><i style="background:var(--ok)"></i>目標以上</span><span><i style="background:var(--bad)"></i>目標未満</span><span><i style="background:transparent;border:1px dashed var(--line)"></i>未入力</span></div>`;
+  h+=`<div class="cinfo" id="chartInfo">${chartInfo(SEL&&list.includes(SEL)?SEL:null)}</div>`;
   el.innerHTML=h;
 }
+let SEL=null;
+function chartInfo(ds){
+  if(!ds) return '<span class="muted small">棒をタップすると、その日の数字が出ます。</span>';
+  const v=data[ds], d=parse(ds), f=full(v), r=f?rateOf(v):null;
+  if(!f) return `<b>${md(ds)}（${W[d.getUTCDay()]}）</b><span class="muted small">未入力</span>`;
+  return `<div class="ci-top"><b>${md(ds)}（${W[d.getUTCDay()]}）</b><span class="num ${r<T?'c-bad':'c-ok'}">販売率 ${pct(r)}<small class="muted"> ${pt(r)}</small></span></div>
+    <div class="ci-grid"><span><em>販売高</em><b class="num">${yen(v[0])}円</b></span><span><em>値引高</em><b class="num">${yen(v[1])}円</b></span><span><em>廃棄高</em><b class="num">${yen(v[2])}円</b></span></div>`;
+}
+$("chart").addEventListener("click",e=>{
+  const b=e.target.closest(".bcol"); if(!b) return;
+  SEL = SEL===b.dataset.ds ? null : b.dataset.ds;
+  document.querySelectorAll("#chart .bcol").forEach(x=>x.classList.toggle("sel",x.dataset.ds===SEL));
+  $("chartInfo").innerHTML=chartInfo(SEL);
+});
 
 // 日別（アコーディオン）
 const OPEN=new Set();
@@ -496,16 +560,17 @@ function dayHead(ds){
   const v=data[ds], d=parse(ds), wd=d.getUTCDay(), ok=full(v), r=ok?rateOf(v):null;
   return `<div class="dtop"><span class="ddate"><span class="${wd===6?'sat':wd===0?'sun':''}">${d.getUTCMonth()+1}/${d.getUTCDate()}（${W[wd]}）</span></span>
     <span class="drate num ${r===null?'muted':r<T?'c-bad':'c-ok'}">${r===null?'未入力':pct(r)}</span>${CHEV}</div>
-    <div class="dsub"><span class="num">${r===null?'タップして入力':'目標 '+pt(r)}</span><span class="num">${ok?'作成高 '+yen(v[0]+lossOf(v))+'円':''}</span></div>
+    <div class="dsub"><span class="num">${r===null?'タップして入力':'目標との差 '+pt(r)}</span></div>
+    ${ok?`<div class="dmini"><span><em>販売高</em><b class="num">${yen(v[0])}円</b></span><span><em>値引高</em><b class="num">${yen(v[1])}円</b><small class="num c-warn">${share(v[1],makeAll(v))}</small></span><span><em>廃棄高</em><b class="num">${yen(v[2])}円</b><small class="num c-bad">${share(v[2],makeAll(v))}</small></span></div>`:''}
     <div class="bar ${r!==null&&r<T?'low':''}"><i style="width:${r===null?0:Math.min(100,r*100)}%"></i><b style="left:${T*100}%"></b></div>`;
 }
 function dayStats(ds){
   const v=data[ds], ok=full(v);
   if(!ok) return '<p class="muted small" style="margin:0">3つの数字を入れると計算します。</p>';
   const all=makeAll(v), a=adjOf(v);
-  return `<div class="card2"><span class="eyebrow">現在の作成高</span><div class="num">${yen(v[0]+lossOf(v))}円</div></div>
+  return `<div class="card2"><span class="eyebrow">作成高</span><div class="num">${yen(v[0]+lossOf(v))}円</div></div>
     <div class="card2"><span class="eyebrow">目標作成高</span><div class="num">${yen(v[0]/T)}円</div></div>
-    <div class="card2 wide ${a<0?'down':'up'}"><span class="eyebrow">${a<0?'減らす必要がある額':'追加作成可能額'}</span><span class="num">${signYen(a)}</span></div>`;
+    <div class="card2 wide ${a<0?'down':'up'}"><span class="eyebrow">作成高の余裕</span><span class="num">${signYen(a)}</span></div>`;
 }
 function dayRates(ds){
   const v=data[ds]; if(!full(v)) return ["","",""];
@@ -517,11 +582,12 @@ function renderDays(list){
   list.forEach(ds=>{
     const v=data[ds], open=OPEN.has(ds), rt=dayRates(ds);
     const c=document.createElement("div"); c.className="dcard"+(open?" open":""); c.dataset.ds=ds;
-    const inp=(i,lab,cls)=>`<label for="in-${ds}-${i}">${lab}<input id="in-${ds}-${i}" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="未入力" value="${v&&typeof v[i]==='number'?yen(v[i]):''}" data-d="${ds}" data-i="${i}"><span class="rt ${cls} num" data-rt="${i}">${rt[i]}</span></label>`;
+    const inp=(i,lab,cls)=>`<label for="in-${ds}-${i}">${lab}<input id="in-${ds}-${i}" inputmode="numeric" enterkeyhint="next" autocomplete="off" placeholder="未入力" value="${v&&typeof v[i]==='number'?yen(v[i]):''}" data-d="${ds}" data-i="${i}"></label>`;
     c.innerHTML=`<button type="button" class="dhead-btn" aria-expanded="${open}" data-toggle="${ds}">${dayHead(ds)}</button>
       <div class="ddet" ${open?'':'hidden'}>
-        <div class="inputs">${inp(0,"販売高","c-acc")}${inp(1,"値引高","c-warn")}${inp(2,"廃棄高","c-bad")}</div>
         <div class="dstats">${dayStats(ds)}</div>
+        <div class="eyebrow">数字を直す</div>
+        <div class="inputs">${inp(0,"販売高","c-acc")}${inp(1,"値引高","c-warn")}${inp(2,"廃棄高","c-bad")}</div>
       </div>`;
     box.appendChild(c);
   });
@@ -587,23 +653,42 @@ $("readBtn").onclick=async()=>{
     if(c==="not_granted"||c==="sampling_disabled") btn.hidden=true;
   }finally{ btn.disabled=false }
 };
+// 読み取り結果のチェック（読めなかった数字・おかしな数字に印を付けるだけ）
+function checkRow(v){
+  if(v.some(x=>x===null||!isFinite(x))) return "読めなかった数字があります。写真を見て入力してください。";
+  if(v.some(x=>x<0)) return "マイナスの数字があります。確認してください。";
+  const all=v[0]+v[1]+v[2]; if(all<=0) return "すべて0です。確認してください。";
+  const r=v[0]/all; if(r<0.4) return "販売率が"+pct(r)+"と低めです。読みまちがいがないか確認してください。";
+  return "";
+}
+function flagRow(k){
+  const el=document.querySelector(`.rv[data-k="${k}"]`); if(!el) return;
+  const msg=checkRow(pending[k].v), w=el.querySelector(".rv-warn");
+  w.hidden=!msg; w.textContent=msg; el.classList.toggle("need",!!msg);
+  el.querySelectorAll("input").forEach((inp,i)=>inp.classList.toggle("miss",pending[k].v[i]===null||!isFinite(pending[k].v[i])));
+  const bad=pending.filter(p=>checkRow(p.v)).length;
+  $("rvCount").textContent=pending.length+"日分"+(bad?`・要確認 ${bad}`:"");
+}
 function showReview(){
   const box=$("review"); box.innerHTML="";
   pending.forEach((p,k)=>{
     const d=parse(p.ds), had=full(data[p.ds]);
     const inp=(i,lab)=>`<label for="rv-${k}-${i}">${lab}<input id="rv-${k}-${i}" inputmode="numeric" autocomplete="off" placeholder="未入力" value="${p.v[i]===null||isNaN(p.v[i])?'':yen(p.v[i])}" data-rv="${k}" data-i="${i}"></label>`;
-    const el=document.createElement("div"); el.className="rv";
+    const el=document.createElement("div"); el.className="rv"; el.dataset.k=k;
     el.innerHTML=`<div class="rv-head"><span>${d.getUTCMonth()+1}/${d.getUTCDate()}（${W[d.getUTCDay()]}）</span><span class="muted small">${had?'今の数字を上書き':'新しい日'}</span></div>
-      <div class="inputs">${inp(0,"販売高")}${inp(1,"値引高")}${inp(2,"廃棄高")}</div>`;
+      <div class="inputs">${inp(0,"販売高")}${inp(1,"値引高")}${inp(2,"廃棄高")}</div>
+      <p class="rv-warn" hidden></p>`;
     box.appendChild(el);
   });
   $("rvCount").textContent=pending.length+"日分";
+  pending.forEach((p,k)=>flagRow(k));
   $("reviewCard").hidden=false;
 }
 $("review").addEventListener("change",e=>{
   const t=e.target; if(t.dataset.rv===undefined) return;
   const raw=cleanNum(t.value); pending[+t.dataset.rv].v[+t.dataset.i]= raw===""?null:Number(raw);
   t.value= raw===""?"":yen(Number(raw));
+  flagRow(+t.dataset.rv);
 });
 $("rvCancel").onclick=()=>{ pending=[]; $("reviewCard").hidden=true; setMsg("反映をやめました。","") };
 $("rvApply").onclick=()=>{
@@ -628,26 +713,29 @@ function planStats(pl,list){
   const rows=list.filter(ds=>full(data[ds]) && pl.days.includes(parse(ds).getUTCDay())).map(ds=>data[ds]);
   const k=rows.length;
   const S=rows.reduce((t,v)=>t+v[0],0), L=rows.reduce((t,v)=>t+lossOf(v),0);
-  return {k,S,L,need:k?S/T/k:0,now:k?(S+L)/k:0,rate:k&&S+L>0?S/(S+L):null};
+  const Dd=rows.reduce((t,v)=>t+v[1],0), Wt=rows.reduce((t,v)=>t+v[2],0);
+  return {k,S,L,Dd,Wt,need:k?S/T/k:0,now:k?(S+L)/k:0,rate:k&&S+L>0?S/(S+L):null};
 }
 function renderPlans(list){
   const box=$("plans"); box.innerHTML=""; const cmp=$("compare"); cmp.innerHTML="";
   PLANS.forEach((pl,pi)=>{
     const st=planStats(pl,list), diff=st.need-st.now;
     const names=[1,2,3,4,5,6,0].filter(d=>pl.days.includes(d)).map(d=>W[d]).join("・")||"曜日なし";
-    cmp.insertAdjacentHTML("beforeend",`<div class="card2"><span class="eyebrow">${pl.name}（${names}）</span><span class="num">${st.k?yen(st.need)+'円':'—'}</span><span class="muted small">1日の推奨作成高</span></div>`);
+    cmp.insertAdjacentHTML("beforeend",`<div class="card2"><span class="eyebrow">${pl.name}（${names}）</span><span class="num">${st.k?yen(st.need)+'円':'—'}</span><span class="muted small">1日の推奨作成高${st.k?`・販売率 <b class="${st.rate<T?'c-bad':'c-ok'}">${pct(st.rate)}</b>`:''}</span></div>`);
     const c=document.createElement("section"); c.className="card pcard";
     c.innerHTML=`<div class="ptitle"><b>${pl.name}</b><span class="muted small">${names}</span></div>
       <div class="wds" role="group" aria-label="${pl.name}の曜日">${[1,2,3,4,5,6,0].map(d=>`<button type="button" id="wd-${pi}-${d}" class="wd ${d===6?'sat':d===0?'sun':''} ${pl.days.includes(d)?'on':''}" data-p="${pi}" data-d="${d}" aria-pressed="${pl.days.includes(d)}">${W[d]}</button>`).join("")}</div>
       ${st.k?`<div class="pstats">
         <div class="card2 rec"><span class="eyebrow">推奨作成高（1日平均・目標${tgt()}%）</span><span class="num">${yen(st.need)}円</span></div>
         <div class="card2"><span class="eyebrow">平均販売高</span><span class="num">${yen(st.S/st.k)}円</span></div>
-        <div class="card2"><span class="eyebrow">平均販売率</span><span class="num ${st.rate<T?'c-bad':'c-ok'}">${pct(st.rate)}</span></div>
+        <div class="card2"><span class="eyebrow">平均販売率</span><span class="num ${st.rate===null?'':st.rate<T?'c-bad':'c-ok'}">${pct(st.rate)}</span></div>
+        <div class="card2"><span class="eyebrow">平均値引高</span><span class="num">${yen(st.Dd/st.k)}円</span></div>
+        <div class="card2"><span class="eyebrow">平均廃棄高</span><span class="num">${yen(st.Wt/st.k)}円</span></div>
         <div class="card2"><span class="eyebrow">今の作成高（平均）</span><span class="num">${yen(st.now)}円</span></div>
         <div class="card2"><span class="eyebrow">過去実績</span><span class="num">${st.k}日</span></div>
         <div class="card2" style="grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center"><span class="eyebrow">今より</span>${pill(diff)}</div>
       </div>`
-      :`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${pl.days.length?'この曜日のデータはまだありません':'曜日を選んでください'}</div>`}`;
+      :`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${pl.days.length?'この曜日のデータはありません':'曜日を選んでください'}</div>`}`;
     box.appendChild(c);
   });
 }
