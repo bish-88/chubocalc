@@ -26,6 +26,14 @@
 .prow{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:.92rem}
 .prow span:first-child{color:var(--muted);font-family:var(--f-display)}
 .pempty{color:var(--muted);font-size:.9rem}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;box-shadow:0 4px 12px -8px rgba(0,0,0,.25)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tabs button{border:0;background:transparent;padding:10px 4px;font-weight:700;font-size:.95rem;color:var(--muted);border-radius:8px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--panel)}
+.pane{display:flex;flex-direction:column;gap:inherit}
+.wrap>.pane{gap:18px}
+.ctx{margin:0;color:var(--muted);font-size:.85rem}
+@media (max-width:640px){.wrap>.pane{gap:12px}}
 /* Layout: one column tool — period bar → summary → daily table */
 :root{
   --bg:#f3f5f1; --panel:#ffffff; --ink:#1d2a22; --muted:#5d6b62; --line:#d9e0d8;
@@ -155,66 +163,80 @@ button:disabled{opacity:.6;cursor:wait}
     <h1>厨房販売率CALC</h1>
   </header>
 
-  <section class="panel up-panel" aria-label="写真アップ">
-    <div class="up-head">
-      <label class="upbtn" for="photo">写真アップ</label>
-      <input type="file" id="photo" accept="image/*" hidden>
-    </div>
-    <div id="upBody" class="up-body" hidden>
-      <img id="preview" alt="アップした写真">
-      <div class="up-side">
-        <button id="readBtn" type="button" class="primary">数字を読み取る</button>
-        <p id="readMsg" class="sub" role="status"></p>
+  <nav class="tabs" role="tablist" aria-label="ページ">
+    <button type="button" role="tab" id="tab-sum" data-tab="sum">まとめ</button>
+    <button type="button" role="tab" id="tab-plan" data-tab="plan">作成計画</button>
+    <button type="button" role="tab" id="tab-day" data-tab="day">日別</button>
+    <button type="button" role="tab" id="tab-photo" data-tab="photo">写真</button>
+  </nav>
+
+  <div class="pane" id="pane-sum" role="tabpanel">
+    <section class="panel bar" aria-label="期間">
+      <label class="field">はじめ<input type="date" id="from"></label>
+      <label class="field">おわり<input type="date" id="to"></label>
+      <label class="field">販売率の計算
+        <select id="mode">
+          <option value="dw">値引＋廃棄</option>
+          <option value="w">廃棄だけ</option>
+        </select>
+      </label>
+      <label class="field">目標の販売率
+        <span class="tgt-in"><input type="number" id="target" min="50" max="99" step="1" value="75">%</span>
+      </label>
+      <div class="chips">
+        <button id="q1" type="button">10/11〜10/18</button>
+        <button id="q2" type="button">直近7日</button>
+        <button id="q3" type="button">全部</button>
       </div>
-    </div>
-  </section>
-
-  <section class="panel bar" aria-label="期間">
-    <label class="field">はじめ<input type="date" id="from"></label>
-    <label class="field">おわり<input type="date" id="to"></label>
-    <label class="field">販売率の計算
-      <select id="mode">
-        <option value="dw">値引＋廃棄</option>
-        <option value="w">廃棄だけ</option>
-      </select>
-    </label>
-    <label class="field">目標の販売率
-      <span class="tgt-in"><input type="number" id="target" min="50" max="99" step="1" value="75">%</span>
-    </label>
-    <div class="chips">
-      <button id="q1" type="button">10/11〜10/18</button>
-      <button id="q2" type="button">直近7日</button>
-      <button id="q3" type="button">全部</button>
-    </div>
-  </section>
-
-  <div id="warn" class="warn" hidden></div>
-
-  <section class="summary" aria-label="期間の結果">
-    <div class="tile key"><div class="lab">期間の販売率</div><div class="val" id="sRate">–</div><div class="note" id="sDays"></div></div>
-    <div class="tile"><div class="lab"><span class="tg">75</span>%まで（期間）</div><div class="val" id="sAdj">–</div><div class="note" id="sAdjNote"></div></div>
-    <div class="tile"><div class="lab">1日の必要作成高</div><div class="val" id="sNeed">–</div><div class="note">今は平均 <span id="sNow">–</span>円</div></div>
-    <div class="tile"><div class="lab">1日あたり</div><div class="val" id="sPerDay">–</div><div class="note">期間合計 ÷ 入力のある日数</div></div>
-    <div class="tile"><div class="lab">期間合計（円）</div><div class="val tot" id="sTot">–</div></div>
-  </section>
-
-  <section class="panel plan" aria-label="作成計画">
-    <h2>作成計画（曜日べつ）</h2>
-    <div class="plan-grid" id="plans"></div>
-  </section>
-
-  <div class="tablebox">
-    <table>
-      <thead><tr>
-        <th class="date">日付</th><th>販売高</th><th>値引高</th><th>廃棄高</th><th>販売率（線＝<span class="tg">75</span>%）</th><th><span class="tg">75</span>%まで</th><th>今の作成高</th><th class="need">必要な作成高</th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-      <tfoot><tr id="foot"></tr></tfoot>
-    </table>
+    </section>
+    <div id="warn" class="warn" hidden></div>
+    <section class="summary" aria-label="期間の結果">
+      <div class="tile key"><div class="lab">期間の販売率</div><div class="val" id="sRate">–</div><div class="note" id="sDays"></div></div>
+      <div class="tile"><div class="lab"><span class="tg">75</span>%まで（期間）</div><div class="val" id="sAdj">–</div><div class="note" id="sAdjNote"></div></div>
+      <div class="tile"><div class="lab">1日の必要作成高</div><div class="val" id="sNeed">–</div><div class="note">今は平均 <span id="sNow">–</span>円</div></div>
+      <div class="tile"><div class="lab">1日あたり</div><div class="val" id="sPerDay">–</div><div class="note">期間合計 ÷ 入力のある日数</div></div>
+      <div class="tile"><div class="lab">期間合計（円）</div><div class="val tot" id="sTot">–</div></div>
+    </section>
   </div>
 
-  <div class="chips">
-    <button id="reset" type="button">最初の写真の数字に戻す</button>
+  <div class="pane" id="pane-plan" role="tabpanel" hidden>
+    <p class="ctx" data-ctx></p>
+    <section class="panel plan" aria-label="作成計画">
+      <h2>作成計画（曜日べつ）</h2>
+      <div class="plan-grid" id="plans"></div>
+    </section>
+  </div>
+
+  <div class="pane" id="pane-day" role="tabpanel" hidden>
+    <p class="ctx" data-ctx></p>
+    <div class="tablebox">
+      <table>
+        <thead><tr>
+          <th class="date">日付</th><th>販売高</th><th>値引高</th><th>廃棄高</th><th>販売率（線＝<span class="tg">75</span>%）</th><th><span class="tg">75</span>%まで</th><th>今の作成高</th><th class="need">必要な作成高</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+        <tfoot><tr id="foot"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-photo" role="tabpanel" hidden>
+    <section class="panel up-panel" aria-label="写真アップ">
+      <div class="up-head">
+        <label class="upbtn" for="photo">写真アップ</label>
+        <input type="file" id="photo" accept="image/*" hidden>
+      </div>
+      <div id="upBody" class="up-body" hidden>
+        <img id="preview" alt="アップした写真">
+        <div class="up-side">
+          <button id="readBtn" type="button" class="primary">数字を読み取る</button>
+          <p id="readMsg" class="sub" role="status"></p>
+        </div>
+      </div>
+    </section>
+    <div class="chips">
+      <button id="reset" type="button">最初の写真の数字に戻す</button>
+    </div>
   </div>
 </div>
 
@@ -284,6 +306,8 @@ function render(){
   if(missing.length){ w.hidden=false; w.textContent=`${missing.map(s=>{const d=parse(s);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()}).join("・")} の数字がまだありません。写真アップか、黄色の欄に入力してください。`; }
   else w.hidden=true;
   renderPlans(list);
+  const f=parse($("from").value), t2=parse($("to").value);
+  document.querySelectorAll("[data-ctx]").forEach(e=>e.textContent=`期間 ${f.getUTCMonth()+1}/${f.getUTCDate()}〜${t2.getUTCMonth()+1}/${t2.getUTCDate()}・目標${tgt()}%（まとめタブで変更）`);
 }
 
 // 写真アップ・読み取り
@@ -369,6 +393,17 @@ $("plans").addEventListener("click",e=>{
   if(!on) PLANS[other].days=PLANS[other].days.filter(x=>x!==d);
   savePlans(); render();
 });
+
+// タブ
+const TABS=["sum","plan","day","photo"];
+function showTab(t){
+  if(!TABS.includes(t)) t="sum";
+  TABS.forEach(x=>{ $("pane-"+x).hidden = x!==t; $("tab-"+x).setAttribute("aria-selected", x===t) });
+  try{ localStorage.setItem("kitchen-tab",t) }catch(e){}
+}
+document.querySelector(".tabs").addEventListener("click",e=>{ const b=e.target.closest("[data-tab]"); if(b){ showTab(b.dataset.tab); window.scrollTo(0,0) } });
+let firstTab=(location.hash||"").slice(1); if(!TABS.includes(firstTab)){ try{ firstTab=localStorage.getItem("kitchen-tab") }catch(e){} }
+showTab(firstTab||"sum");
 $("rows").addEventListener("change",e=>{
   const t=e.target; if(!t.dataset.d) return;
   const raw=t.value.replace(/[,，円\s]/g,"").replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248));
